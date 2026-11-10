@@ -500,7 +500,10 @@ Public Sub Boton_EscribirTeclado()
         textoUsuario = Left$(textoUsuario, 8)
     End If
     
-    ' Encolar en el hardware simulado (ya expone el primer caracter en RegKbdData y Status=1)
+    ' Reiniciar la cola previa para que el nuevo texto ingrese limpiamente desde 0x70
+    InicializarColaTeclado
+    
+    ' Encolar en el hardware simulado (todos los caracteres se almacenan en la cola FIFO)
     Teclado_EncolarTexto textoUsuario
     
     ' Actualizar interfaz en todas las hojas (CPU y ARQUITECTURA)

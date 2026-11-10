@@ -1,3 +1,4 @@
+Attribute VB_Name = "Perifericos"
 Option Explicit
 
 ' ==============================================================================
@@ -75,6 +76,19 @@ Public Sub InicializarColaRAM()
     Next i
 End Sub
 
+' Reinicia exclusivamente los punteros y celdas de la cola de teclado
+Public Sub InicializarColaTeclado()
+    Dim i As Long
+    For i = 0 To 7
+        MemoriaVirtual_CargarByte DIR_COLA_KBD + i, 0
+    Next i
+    MemoriaVirtual_CargarByte DIR_KB_HEAD, 0
+    MemoriaVirtual_CargarByte DIR_KB_TAIL, 0
+    MemoriaVirtual_CargarByte DIR_KB_COUNT, 0
+    RegKbdStatus = 0
+    RegKbdData = 0
+End Sub
+
 ' ------------------------------------------------------------------------------
 ' INTERACCIÓN DE ENTRADA: El usuario presiona una tecla en el panel de Excel
 ' ------------------------------------------------------------------------------
@@ -91,10 +105,13 @@ Public Sub Teclado_EncolarTexto(ByVal texto As String)
         codigo = Asc(Mid$(texto, i, 1))
         Teclado_InsertarEnColaFIFO codigo
     Next i
-    ' Si el registro de datos del teclado está libre, transferir automáticamente la primera tecla
-    If RegKbdStatus = 0 And MemoriaVirtual_LeerByte(DIR_KB_COUNT) > 0 Then
-        codigo = Teclado_ExtraerDeColaFIFO()
-        Teclado_PulsarTecla codigo
+    ' Reflejar la primera tecla de la cola en RegKbdData para vista previa y marcar tecla lista
+    ' SIN extraerla de la cola FIFO (se extraera por orden cuando la CPU ejecute IN DX, [0x02])
+    If MemoriaVirtual_LeerByte(DIR_KB_COUNT) > 0 Then
+        Dim h As Long
+        h = MemoriaVirtual_LeerByte(DIR_KB_HEAD)
+        RegKbdData = MemoriaVirtual_LeerByte(DIR_COLA_KBD + h)
+        RegKbdStatus = 1
     End If
 End Sub
 
@@ -157,19 +174,33 @@ Public Function Periferico_LeerPuerto(ByVal numPuerto As Long) As Long
     Select Case numPuerto
         Case PUERTO_KBD_STATUS ' Puerto 0x01: Estado
             En_KBD = True
-            Periferico_LeerPuerto = RegKbdStatus
+            ' Bit 0 = 1 si hay al menos una tecla disponible en la cola FIFO o en el registro
+            If MemoriaVirtual_LeerByte(DIR_KB_COUNT) > 0 Or RegKbdStatus = 1 Then
+                Periferico_LeerPuerto = 1
+            Else
+                Periferico_LeerPuerto = 0
+            End If
             
         Case PUERTO_KBD_DATA   ' Puerto 0x02: Dato ASCII
             En_KBD = True
-            Periferico_LeerPuerto = RegKbdData
-            ' Al leer el dato del puerto 0x02:
-            ' Si aún quedan teclas en la cola FIFO, transferir automáticamente la siguiente al registro
+            ' Si hay teclas en la cola FIFO, extraer la siguiente (consumidor)
             If MemoriaVirtual_LeerByte(DIR_KB_COUNT) > 0 Then
-                Dim proximaTecla As Long
-                proximaTecla = Teclado_ExtraerDeColaFIFO()
-                RegKbdData = proximaTecla
-                RegKbdStatus = 1
+                Dim teclaExtraida As Long
+                teclaExtraida = Teclado_ExtraerDeColaFIFO()
+                Periferico_LeerPuerto = teclaExtraida
+                
+                ' Actualizar la vista previa de hardware con la siguiente tecla de la cola si queda alguna
+                If MemoriaVirtual_LeerByte(DIR_KB_COUNT) > 0 Then
+                    Dim proxH As Long
+                    proxH = MemoriaVirtual_LeerByte(DIR_KB_HEAD)
+                    RegKbdData = MemoriaVirtual_LeerByte(DIR_COLA_KBD + proxH)
+                    RegKbdStatus = 1
+                Else
+                    RegKbdData = teclaExtraida
+                    RegKbdStatus = 0
+                End If
             Else
+                Periferico_LeerPuerto = RegKbdData
                 RegKbdStatus = 0
             End If
             

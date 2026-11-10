@@ -1,3 +1,4 @@
+Attribute VB_Name = "Ciclo"
 Option Explicit
 
 #If VBA7 Then
