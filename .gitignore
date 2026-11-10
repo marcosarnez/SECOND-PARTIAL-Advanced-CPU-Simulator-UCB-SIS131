@@ -1,0 +1,10 @@
+~$*.xlsx
+~$*.xlsm
+~$*.xltx
+~$*.xltm
+~$*.xls
+~$*.xlam
+*.tmp
+*.temp
+*.bak
+*.log
