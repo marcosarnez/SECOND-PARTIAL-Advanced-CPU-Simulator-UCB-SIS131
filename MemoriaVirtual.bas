@@ -70,14 +70,21 @@ Public Sub ResetMemoriaVirtual()
         Disco_Swap(i) = 0
     Next i
     
-    ' Reset de Marcos Físicos
+    ' Asignación inicial 1:1 de los 8 Marcos Físicos a las primeras 8 Páginas Virtuales (VPN 0..7)
     For i = 0 To NUM_MARCOS_FISICOS - 1
-        MarcoAsignadoA_VPN(i) = -1
-        ColaFIFO_Marcos(i) = -1
+        MarcoAsignadoA_VPN(i) = i
+        ColaFIFO_Marcos(i) = i
+        TablaPaginas(i).VPN = i
+        TablaPaginas(i).Presente = 1
+        TablaPaginas(i).PFN = i
+        TablaPaginas(i).Dirty = 0
+        TablaPaginas(i).Referenciado = 0
+        TablaPaginas(i).TiempoCarga = 0
     Next i
+    TotalMarcosOcupados = NUM_MARCOS_FISICOS
     
-    ' Inicializar Tabla de Páginas (todas en Swap al inicio)
-    For i = 0 To NUM_PAGINAS_VIRTUALES - 1
+    ' Inicializar Páginas 8 a 15 en Disco / Swap (Presente = 0)
+    For i = NUM_MARCOS_FISICOS To NUM_PAGINAS_VIRTUALES - 1
         TablaPaginas(i).VPN = i
         TablaPaginas(i).Presente = 0
         TablaPaginas(i).PFN = -1
@@ -246,11 +253,24 @@ Public Sub MemoriaVirtual_CargarByte(ByVal dirVirtual As Long, ByVal valor As Lo
         pfn = TablaPaginas(vpn).PFN
         RAM_Fisica((pfn * TAM_PAGINA) + offset) = valor And 255
     End If
+    
+    ' Sincronización directa en RAM física para hardware periférico mapeado en memoria:
+    ' 0x70-0x7A: Cola FIFO Teclado y punteros | 0xF0-0xFF: Buffer de Pantalla VRAM LCD
+    If (dirVirtual >= &H70 And dirVirtual <= &H7A) Or (dirVirtual >= &HF0 And dirVirtual <= &HFF) Then
+        RAM_Fisica(dirVirtual And 255) = valor And 255
+    End If
 End Sub
 
 ' Lectura directa del espacio virtual (para inspección o ensamblador)
 Public Function MemoriaVirtual_LeerByte(ByVal dirVirtual As Long) As Long
     dirVirtual = dirVirtual And 511
+    
+    ' Para periféricos de hardware mapeados, leer siempre el estado físico de RAM
+    If (dirVirtual >= &H70 And dirVirtual <= &H7A) Or (dirVirtual >= &HF0 And dirVirtual <= &HFF) Then
+        MemoriaVirtual_LeerByte = RAM_Fisica(dirVirtual And 255)
+        Exit Function
+    End If
+    
     Dim vpn As Long, offset As Long, pfn As Long
     vpn = dirVirtual \ TAM_PAGINA
     offset = dirVirtual Mod TAM_PAGINA

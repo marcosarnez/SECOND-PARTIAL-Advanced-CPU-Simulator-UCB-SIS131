@@ -69,9 +69,9 @@ Public Sub InicializarColaRAM()
     MemoriaVirtual_CargarByte DIR_KB_TAIL, 0
     MemoriaVirtual_CargarByte DIR_KB_COUNT, 0
     
-    ' Inicializar celdas de VRAM en RAM con espacios
-    For i = 0 To 7
-        MemoriaVirtual_CargarByte DIR_VRAM_LCD + i, 32
+    ' Inicializar celdas de la Reserva VRAM en RAM (0xF0 - 0xFF) con 0
+    For i = 0 To 15
+        MemoriaVirtual_CargarByte &HF0 + i, 0
     Next i
 End Sub
 
@@ -91,6 +91,11 @@ Public Sub Teclado_EncolarTexto(ByVal texto As String)
         codigo = Asc(Mid$(texto, i, 1))
         Teclado_InsertarEnColaFIFO codigo
     Next i
+    ' Si el registro de datos del teclado está libre, transferir automáticamente la primera tecla
+    If RegKbdStatus = 0 And MemoriaVirtual_LeerByte(DIR_KB_COUNT) > 0 Then
+        codigo = Teclado_ExtraerDeColaFIFO()
+        Teclado_PulsarTecla codigo
+    End If
 End Sub
 
 ' Inserción de una tecla en la Cola Circular de RAM (Productor)
@@ -157,8 +162,16 @@ Public Function Periferico_LeerPuerto(ByVal numPuerto As Long) As Long
         Case PUERTO_KBD_DATA   ' Puerto 0x02: Dato ASCII
             En_KBD = True
             Periferico_LeerPuerto = RegKbdData
-            ' Al leer el dato, el hardware resetea automáticamente el estado a 0
-            RegKbdStatus = 0
+            ' Al leer el dato del puerto 0x02:
+            ' Si aún quedan teclas en la cola FIFO, transferir automáticamente la siguiente al registro
+            If MemoriaVirtual_LeerByte(DIR_KB_COUNT) > 0 Then
+                Dim proximaTecla As Long
+                proximaTecla = Teclado_ExtraerDeColaFIFO()
+                RegKbdData = proximaTecla
+                RegKbdStatus = 1
+            Else
+                RegKbdStatus = 0
+            End If
             
         Case Else
             Periferico_LeerPuerto = 0
@@ -188,7 +201,7 @@ Public Sub LCD_EscribirCaracter(ByVal asciiVal As Long)
         If PosicionCursorLCD > 0 Then
             PosicionCursorLCD = PosicionCursorLCD - 1
             LCD_Latch(PosicionCursorLCD) = 32 ' Espacio en blanco
-            MemoriaVirtual_CargarByte DIR_VRAM_LCD + PosicionCursorLCD, 32
+            MemoriaVirtual_CargarByte DIR_VRAM_LCD + PosicionCursorLCD, 0
         End If
         Exit Sub
     End If
@@ -214,7 +227,7 @@ Public Sub LCD_HacerScrollIzquierda()
         MemoriaVirtual_CargarByte DIR_VRAM_LCD + i, LCD_Latch(i)
     Next i
     LCD_Latch(7) = 32 ' Espacio al final
-    MemoriaVirtual_CargarByte DIR_VRAM_LCD + 7, 32
+    MemoriaVirtual_CargarByte DIR_VRAM_LCD + 7, 0
 End Sub
 
 ' Devuelve el texto actualmente proyectado en el display LCD (8 caracteres)

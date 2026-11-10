@@ -100,7 +100,7 @@ Public Sub CargarProgramaCatalogo(ByVal numeroPrograma As Long)
         MsgBox "Error al ensamblar programa " & numeroPrograma & ": " & UltimoErrorEnsamblador, vbCritical, "Error Ensamblador"
     Else
         If numeroPrograma = 2 Then
-            Teclado_PulsarTecla Asc("H")
+            Teclado_EncolarTexto "HOLA"
         End If
         ActualizarTodoUI
     End If

@@ -347,7 +347,7 @@ Private Sub CrearEncabezado(ByVal ws As Worksheet, ByVal wb As Workbook)
     EstiloEtiqueta rMemTop, RGB(41, 128, 185)
     
     ws.Range("Z6:AP6").Merge
-    ws.Range("Z6").Value = "Capacidad: 256 Bytes  |  8 Marcos de 32 Bytes (M0..M7)  |  0x00-0x7F Codigo / 0x80-0xFF Datos"
+    ws.Range("Z6").Value = "Capacidad: 256 Bytes  |  8 Marcos de 32B  |  0x00-0x7F Codigo  |  0x80-0xEF Datos  |  0xF0-0xFF Reserva VRAM LCD"
     ws.Range("Z6").Font.Size = 8
     ws.Range("Z6").Font.Color = RGB(160, 175, 190)
     ws.Range("Z6").HorizontalAlignment = xlCenter
@@ -1002,6 +1002,7 @@ Private Sub CrearPanelMemoriaRAM16x16(ByVal ws As Worksheet, ByVal wb As Workboo
     Next r
     
     With ws.Range(ws.Cells(11, 27), ws.Cells(26, 42))
+        .NumberFormat = "@"
         .Value = arr00
         .Font.Name = "Consolas"
         .Font.Size = 8
@@ -1019,10 +1020,43 @@ Private Sub CrearPanelMemoriaRAM16x16(ByVal ws As Worksheet, ByVal wb As Workboo
         .Font.Color = RGB(147, 197, 253)
     End With
     
-    ' Colorear en bloque: Filas 19-26 Verde (Datos 0x80-0xFF, Marcos 4-7)
-    With ws.Range(ws.Cells(19, 27), ws.Cells(26, 42))
+    ' Fila 18: Resaltar Cola FIFO Teclado (0x70-0x77) y punteros Head, Tail, Count (0x78-0x7A)
+    With ws.Range(ws.Cells(18, 27), ws.Cells(18, 34))
+        .Interior.Color = RGB(20, 48, 70)
+        .Font.Color = RGB(125, 211, 252)
+    End With
+    With ws.Range(ws.Cells(18, 35), ws.Cells(18, 37))
+        .Interior.Color = RGB(28, 58, 85)
+        .Font.Color = RGB(186, 230, 253)
+    End With
+    
+    ' Colorear en bloque: Filas 19-25 Verde (Datos 0x80-0xEF, Marcos 4-7)
+    With ws.Range(ws.Cells(19, 27), ws.Cells(25, 42))
         .Interior.Color = RGB(18, 42, 30)
         .Font.Color = RGB(134, 239, 172)
+    End With
+    
+    ' =========================================================================
+    ' FILA 26: RESERVA DE VRAM / BUFFER DE PANTALLA (0xF0-0xFF) - ULTIMA FILA
+    ' =========================================================================
+    ' Celda Z26 (Etiqueta F0 en columna de direcciones)
+    With ws.Cells(26, 26)
+        .Interior.Color = RGB(194, 65, 12) ' Ambar / Rust
+        .Font.Color = RGB(255, 255, 255)
+        .Font.Bold = True
+    End With
+    
+    ' Celdas 0xF0 - 0xF7 (Columnas AA26:AH26): Reserva E/S Mapeada en Memoria
+    With ws.Range(ws.Cells(26, 27), ws.Cells(26, 34))
+        .Interior.Color = RGB(55, 30, 10)
+        .Font.Color = RGB(251, 146, 60)
+    End With
+    
+    ' Celdas 0xF8 - 0xFF (Columnas AI26:AP26): Buffer Activo VRAM LCD 8x1
+    With ws.Range(ws.Cells(26, 35), ws.Cells(26, 42))
+        .Interior.Color = RGB(85, 40, 12)
+        .Font.Color = RGB(254, 215, 170)
+        .Font.Bold = True
     End With
     
     ' Bordes de columna Z de direcciones
@@ -1034,12 +1068,12 @@ Private Sub CrearPanelMemoriaRAM16x16(ByVal ws As Worksheet, ByVal wb As Workboo
     
     ' Pie / Leyenda Informativa en Fila 27
     ws.Range("Z27:AP27").Merge
-    ws.Range("Z27").Value = "Azul: Marcos 0-3 (Codigo/Instr. 0x00-0x7F)  |  Verde: Marcos 4-7 (Datos/E-S 0x80-0xFF)  |  Amarillo: Cursor Activo (MAR/PC)"
+    ws.Range("Z27").Value = "Azul: Codigo (0x00-0x7F)  |  Verde: Datos (0x80-0xEF)  |  Naranja: Reserva VRAM Pantalla (0xF0-0xFF)  |  Amarillo: Cursor Activo"
     With ws.Range("Z27")
         .Font.Name = "Segoe UI"
         .Font.Size = 7
         .Font.Italic = True
-        .Font.Color = RGB(150, 160, 175)
+        .Font.Color = RGB(253, 186, 116)
         .Interior.Color = RGB(24, 28, 36)
         .HorizontalAlignment = xlCenter
         .VerticalAlignment = xlCenter
