@@ -9,23 +9,16 @@
 
 ## 1. Identidad del Equipo y Logotipo
 
-```
-  =============================================================
-   ██████╗ ███████╗██████╗ ██╗██████╗ ██╗   ██╗███████╗
-  ██╔════╝ ██╔════╝██╔══██╗██║██╔══██╗██║   ██║██╔════╝
-  ██║  ███╗█████╗  ██████╔╝██║██████╔╝██║   ██║███████╗
-  ██║   ██║██╔══╝  ██╔══██╗██║██╔══██╗██║   ██║╚════██║
-  ╚██████╔╝███████╗██║  ██║██║██████╔╝╚██████╔╝███████║
-   ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝╚═════╝  ╚═════╝ ╚══════╝
-           DIGITAL COMPUTING ARCHITECTURE LAB - UCB
-  =============================================================
-```
+<div align="center">
+  <img src="assets/logo_cochi_al_horno.jpg" alt="COCHI AL HORNO - Hardware & Design - Computer Architecture Group" width="340"/>
+  <h3>COCHI AL HORNO — Computer Architecture Group</h3>
+  <p><em>Hardware & Design Lab • Universidad Católica Boliviana "San Pablo"</em></p>
+</div>
 
-* **Equipo Oficial:** GERIBUS COMPUTING CORP.
+* **Equipo Oficial:** COCHI AL HORNO (Computer Architecture Group)
 * **Integrantes y Roles Gitflow:**
-  * **Líder & Arquitecto de Buses / Micro-palabra:** `feature/estudiante-1/modulo-buses-tristate`
-  * **Ingeniero de Jerarquía de Memoria & Caché:** `feature/estudiante-2/modulo-cache-l1-l2`
-  * **Especialista en Memoria Virtual & E/S:** `feature/estudiante-3/modulo-mmu-perifericos`
+  * **Marcos Arnez (`@marcosarnez`):** Buses Tri-Estado, Núcleo CPU (AX..DX y Micro-palabra), Cockpit UI y Ensamblador / Loader (`feature/marcos/...`)
+  * **Fernando Arias (`@fernandoqarius`):** Jerarquía de Caché (L1I/L1D/L2), Memoria Virtual & Swap, Periféricos E/S (`feature/companero/...`)
 
 ---
 
@@ -269,7 +262,7 @@ Genera accesos alternados a través de más de 8 páginas virtuales diferentes (
 
 ## 10. Manual de Uso del Simulador
 
-1. Abrir `simulador-cpu.xlsm` y asegurarse de habilitar las macros.
+1. Abrir `simuladorgood-cpu.xlsm` y asegurarse de habilitar las macros.
 2. En la pestaña **CPU**, observar los módulos de la placa:
    * **Buses y Micro-palabra:** Columna central con valores y estado High-Z.
    * **Jerarquía de Caché:** Indicadores de L1I, L1D, L2 y Hit Rate.
