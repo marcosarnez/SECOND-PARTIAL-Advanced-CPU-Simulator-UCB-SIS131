@@ -111,6 +111,11 @@ Public Sub GenerarTableroSegundoParcial()
     ' =====================================================================
     AsegurarHojaMemoriaVisible wb
     
+    ' =====================================================================
+    ' PASO 14: INSERTAR LOGOTIPO OFICIAL DEL EQUIPO (COCHI AL HORNO)
+    ' =====================================================================
+    InsertarLogoEquipo ws
+    
     ' --- Desproteger y desbloquear todas las hojas del libro para edicion total ---
     For Each wsLoop In wb.Worksheets
         wsLoop.Unprotect ""
@@ -225,7 +230,7 @@ Private Sub CrearEncabezado(ByVal ws As Worksheet, ByVal wb As Workbook)
     Dim rBanner1 As Range
     Set rBanner1 = ws.Range("B2:AP2")
     rBanner1.Merge
-    rBanner1.Value = "GERIBUS COMPUTING CORP.  |  DIGITAL COMPUTING ARCHITECTURE LAB — UCB SANTA CRUZ"
+    rBanner1.Value = "COCHI AL HORNO  |  HARDWARE & DESIGN — COMPUTER ARCHITECTURE GROUP — UCB SANTA CRUZ"
     With rBanner1
         .Font.Name = "Segoe UI"
         .Font.Size = 10
@@ -1082,4 +1087,45 @@ Public Sub IniciarTodoElSimulador()
                "3. Hoja 'ARQUITECTURA': Diagrama de la pizarra con Buses, Teclado manejable y Editor de programas.", _
                vbInformation, "SIS-131 Arquitectura de Computadoras"
     End If
+End Sub
+
+' =============================================================================
+' INSERTAR LOGOTIPO OFICIAL DEL EQUIPO EN EL TABLERO
+' =============================================================================
+Private Sub InsertarLogoEquipo(ByVal ws As Worksheet)
+    On Error Resume Next
+    Dim logoPath As String
+    logoPath = ThisWorkbook.Path & "\assets\logo_cochi_al_horno.jpg"
+    If Dir(logoPath) = "" Then Exit Sub
+    
+    Dim targetRng As Range
+    Set targetRng = ws.Range("H28:L35")
+    
+    Dim shp As Shape
+    Set shp = ws.Shapes.AddPicture( _
+        Filename:=logoPath, _
+        LinkToFile:=0, _
+        SaveWithDocument:=-1, _
+        Left:=targetRng.Left + 4, _
+        Top:=targetRng.Top + 4, _
+        Width:=-1, _
+        Height:=-1)
+        
+    If Not shp Is Nothing Then
+        shp.Name = "Logo_CochiAlHorno"
+        shp.LockAspectRatio = -1 ' msoTrue
+        
+        ' Ajustar proporcionalmente dentro del area H28:L35
+        Dim maxW As Double, maxH As Double
+        maxW = targetRng.Width - 8
+        maxH = targetRng.Height - 8
+        
+        If shp.Width > maxW Then shp.Width = maxW
+        If shp.Height > maxH Then shp.Height = maxH
+        
+        ' Centrar dentro de H28:L35
+        shp.Left = targetRng.Left + (targetRng.Width - shp.Width) / 2
+        shp.Top = targetRng.Top + (targetRng.Height - shp.Height) / 2
+    End If
+    On Error GoTo 0
 End Sub

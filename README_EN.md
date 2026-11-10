@@ -9,23 +9,16 @@
 
 ## 1. Team Identity and Official Logo
 
-```
-  =============================================================
-   ██████╗ ███████╗██████╗ ██╗██████╗ ██╗   ██╗███████╗
-  ██╔════╝ ██╔════╝██╔══██╗██║██╔══██╗██║   ██║██╔════╝
-  ██║  ███╗█████╗  ██████╔╝██║██████╔╝██║   ██║███████╗
-  ██║   ██║██╔══╝  ██╔══██╗██║██╔══██╗██║   ██║╚════██║
-  ╚██████╔╝███████╗██║  ██║██║██████╔╝╚██████╔╝███████║
-   ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝╚═════╝  ╚═════╝ ╚══════╝
-           DIGITAL COMPUTING ARCHITECTURE LAB - UCB
-  =============================================================
-```
+<div align="center">
+  <img src="assets/logo_cochi_al_horno.jpg" alt="COCHI AL HORNO - Hardware & Design - Computer Architecture Group" width="340"/>
+  <h3>COCHI AL HORNO — Computer Architecture Group</h3>
+  <p><em>Hardware & Design Lab • Universidad Católica Boliviana "San Pablo"</em></p>
+</div>
 
-* **Official Team Name:** GERIBUS COMPUTING CORP.
+* **Official Team Name:** COCHI AL HORNO (Computer Architecture Group)
 * **Members & Gitflow Responsibilities:**
-  * **Lead & Bus / Control Word Architect:** `feature/student-1/buses-tristate-module`
-  * **Memory Hierarchy & Cache Engineer:** `feature/student-2/cache-l1-l2-module`
-  * **Virtual Memory & I/O Systems Specialist:** `feature/student-3/mmu-peripherals-module`
+  * **Marcos Arnez (`@marcosarnez`):** Tri-State Buses, CPU Core (AX..DX & Control Word), UI Cockpit & Two-Pass Assembler (`feature/marcos/...`)
+  * **Fernando Arias (`@fernandoqarius`):** Multi-level Cache (L1I/L1D/L2), Paged Virtual Memory & Swap, I/O Peripherals (`feature/companero/...`)
 
 ---
 
@@ -268,7 +261,7 @@ Accesses non-contiguous addresses across more than 8 distinct virtual pages (`0x
 
 ## 10. Simulator User Guide
 
-1. Open `simulador-cpu.xlsm` and enable macros.
+1. Open `simuladorgood-cpu.xlsm` and enable macros.
 2. Select the **CPU** worksheet:
    * **Buses & Control Word:** Observe values and dynamic High-Z status.
    * **Cache Hierarchy:** Track L1I, L1D, and L2 Hit/Miss counters.
